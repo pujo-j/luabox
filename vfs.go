@@ -1,8 +1,8 @@
 package luabox
 
 import (
-	"crypto/sha256"
 	"encoding/hex"
+	"hash/fnv"
 	"io"
 	"strings"
 	"time"
@@ -48,7 +48,18 @@ func (vfs *VFS) List(file string) ([]FileInfo, error) {
 			return nil, err
 		}
 		for p := range vfs.Prefixes {
-			direntry := FileInfo{IsDir: true, Name: p, SelfUrl: "/" + p, Size: 0, ETag: hex.EncodeToString(sha256.New().Sum([]byte(p))), LastModified: baseTime}
+			etag := fnv.New64a()
+			_, err := etag.Write([]byte(p))
+			if err != nil {
+				panic(err)
+			}
+			direntry := FileInfo{
+				IsDir:        true,
+				Name:         p,
+				SelfUrl:      "/" + p,
+				Size:         0,
+				ETag:         hex.EncodeToString(etag.Sum([]byte{})),
+				LastModified: baseTime}
 			list = append(list, direntry)
 		}
 		return list, nil

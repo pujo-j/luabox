@@ -1,14 +1,15 @@
 package localenv
 
 import (
-	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"github.com/pujo-j/luabox"
+	"hash/fnv"
 	"io"
 	"io/ioutil"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -62,7 +63,16 @@ func (f *Fs) List(filePath string) ([]luabox.FileInfo, error) {
 	res := make([]luabox.FileInfo, 0)
 	for _, e := range list {
 		e2 := luabox.FileInfo{}
-		e2.ETag = hex.EncodeToString(sha256.New().Sum([]byte(e.ModTime().Format(time.RFC3339Nano))))
+		etag := fnv.New64a()
+		_, err := etag.Write([]byte(strconv.Itoa(int(e.Size()))))
+		if err != nil {
+			panic(err)
+		}
+		_, err = etag.Write([]byte(e.ModTime().Format(time.RFC3339Nano)))
+		if err != nil {
+			panic(err)
+		}
+		e2.ETag = hex.EncodeToString(etag.Sum([]byte{}))
 		e2.LastModified = e.ModTime()
 		e2.Name = e.Name()
 		e2.Size = uint64(e.Size())
