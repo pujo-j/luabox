@@ -1,22 +1,31 @@
 package luabox
 
 import (
-	"github.com/gobuffalo/packd"
-	"github.com/gobuffalo/packr/v2"
+	"github.com/markbates/pkger"
 	"io/ioutil"
+	"os"
 	"strings"
 )
 
-func ScanLibs(libDir string, libDirName string) (map[string]LuaFile, error) {
-	p := packr.New(libDirName, libDir)
+func ScanLibs(libDir string) (map[string]LuaFile, error) {
 	libs := make(map[string]LuaFile)
-	err := p.Walk(func(s string, file packd.File) error {
-		if strings.HasSuffix(s, ".lua") {
-			luaBytes, err := ioutil.ReadAll(file)
+	err := pkger.Walk(libDir, func(path string, info os.FileInfo, err error) error {
+		if strings.HasSuffix(path, ".lua") {
+			luaFile, err := pkger.Open(path)
 			if err != nil {
 				return err
 			}
-			name := strings.Split(s, ".")[0]
+			luaBytes, err := ioutil.ReadAll(luaFile)
+			if err != nil {
+				return err
+			}
+			var name string
+			if strings.Contains(path, ":") {
+				p := strings.Split(path, ":")[1]
+				name = strings.TrimPrefix(strings.TrimSuffix(p, ".lua"), libDir)
+			} else {
+				name = strings.TrimPrefix(strings.TrimSuffix(path, ".lua"), libDir)
+			}
 			f := LuaFile{
 				Name: name,
 				Code: string(luaBytes),
@@ -31,7 +40,7 @@ func ScanLibs(libDir string, libDirName string) (map[string]LuaFile, error) {
 var BaseLibs map[string]LuaFile
 
 func init() {
-	l, err := ScanLibs("lua", "baselibs")
+	l, err := ScanLibs("/lua/")
 	if err != nil {
 		panic(err)
 	}
