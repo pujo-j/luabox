@@ -15,13 +15,18 @@
  *
  */
 
-package luabox
+package test
 
-type Log interface {
-	WithFields(context map[string]interface{}) Log
-	Debug(msg string, context map[string]interface{})
-	Info(msg string, context map[string]interface{})
-	Warn(msg string, context map[string]interface{})
-	Error(msg string, context map[string]interface{})
-	Fatal(msg string, context map[string]interface{})
+import "errors"
+
+//go:generate luaboxgen func.go
+
+func Test(greeting string, name string) (string, error) {
+	if greeting == "" {
+		return "", errors.New("greeting is mandatory")
+	}
+	if name == "" {
+		return "", errors.New("name is mandatory")
+	}
+	return greeting + " " + name, nil
 }

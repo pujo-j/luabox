@@ -1,3 +1,20 @@
+/*
+ *    Copyright 2020 Josselin Pujo
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ *
+ */
+
 package luabox
 
 import (
@@ -29,7 +46,6 @@ var luaBoxSyscalls = []lua.RegistryFunction{
 			ar, _ := lua.Info(l, "Sl", f) // get info about it
 			if ar.CurrentLine > 0 {       // is there info?
 				params["lua_origin"] = fmt.Sprintf("%s:%d", ar.ShortSource, ar.CurrentLine)
-
 			}
 		}
 		switch level {

@@ -1,3 +1,20 @@
+/*
+ *    Copyright 2020 Josselin Pujo
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ *
+ */
+
 package localenv
 
 import (
@@ -13,8 +30,7 @@ import (
 )
 
 type ZapLog struct {
-	zap *zap.SugaredLogger
-	cfg *zap.Config
+	Zap *zap.SugaredLogger
 }
 
 func NewZapLog(cfg zap.Config) (*ZapLog, error) {
@@ -22,36 +38,15 @@ func NewZapLog(cfg zap.Config) (*ZapLog, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &ZapLog{logger.Sugar(), &cfg}, err
-}
-
-func (z *ZapLog) GetLevel() luabox.Level {
-	switch z.cfg.Level.Level() {
-	case zap.DebugLevel:
-		return luabox.DebugLevel
-	case zap.InfoLevel:
-		return luabox.InfoLevel
-	case zap.WarnLevel:
-		return luabox.WarnLevel
-	case zap.ErrorLevel:
-		return luabox.ErrorLevel
-	case zap.DPanicLevel:
-		return luabox.FatalLevel
-	case zap.PanicLevel:
-		return luabox.FatalLevel
-	case zap.FatalLevel:
-		return luabox.FatalLevel
-	default:
-		return luabox.FatalLevel
-	}
+	return &ZapLog{logger.Sugar()}, err
 }
 
 func (z *ZapLog) WithFields(context map[string]interface{}) luabox.Log {
 	args := mapToArgs(context)
 	if args != nil {
-		return &ZapLog{z.zap.With(args...), z.cfg}
+		return &ZapLog{z.Zap.With(args...)}
 	} else {
-		return &ZapLog{z.zap, z.cfg}
+		return &ZapLog{z.Zap}
 	}
 }
 
@@ -70,45 +65,45 @@ func mapToArgs(context map[string]interface{}) []interface{} {
 func (z *ZapLog) Debug(msg string, context map[string]interface{}) {
 	args := mapToArgs(context)
 	if args != nil {
-		z.zap.With(args...).Debug(msg)
+		z.Zap.With(args...).Debug(msg)
 	} else {
-		z.zap.Debug(msg)
+		z.Zap.Debug(msg)
 	}
 }
 
 func (z *ZapLog) Info(msg string, context map[string]interface{}) {
 	args := mapToArgs(context)
 	if args != nil {
-		z.zap.With(args...).Info(msg)
+		z.Zap.With(args...).Info(msg)
 	} else {
-		z.zap.Info(msg)
+		z.Zap.Info(msg)
 	}
 }
 
 func (z *ZapLog) Warn(msg string, context map[string]interface{}) {
 	args := mapToArgs(context)
 	if args != nil {
-		z.zap.With(args...).Warn(msg)
+		z.Zap.With(args...).Warn(msg)
 	} else {
-		z.zap.Warn(msg)
+		z.Zap.Warn(msg)
 	}
 }
 
 func (z *ZapLog) Error(msg string, context map[string]interface{}) {
 	args := mapToArgs(context)
 	if args != nil {
-		z.zap.With(args...).Error(msg)
+		z.Zap.With(args...).Error(msg)
 	} else {
-		z.zap.Error(msg)
+		z.Zap.Error(msg)
 	}
 }
 
 func (z *ZapLog) Fatal(msg string, context map[string]interface{}) {
 	args := mapToArgs(context)
 	if args != nil {
-		z.zap.With(args...).Fatalf(msg)
+		z.Zap.With(args...).Fatalf(msg)
 	} else {
-		z.zap.Fatalf(msg)
+		z.Zap.Fatalf(msg)
 	}
 }
 
@@ -154,5 +149,4 @@ func NewEnv(basePath string, initScripts string, args []string) (*luabox.Environ
 		LuaLibs:    luabox.BaseLibs,
 	}
 	return &res, nil
-
 }
