@@ -75,6 +75,8 @@ var luaBoxSyscalls = []lua.RegistryFunction{
 	{"yamlParse", Parse},
 	{"jsonRepr", ReprJson},
 	{"jsonParse", ParseJson},
+	{"getEnv", EnvGetEnv},
+	{"getArgs", EnvGetArgs},
 }
 
 func SyscallOpen(l *lua.State) int {

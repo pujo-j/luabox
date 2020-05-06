@@ -136,3 +136,25 @@ func GetEnvironment(l *lua.State) (*Environment, error) {
 	}
 	return res, nil
 }
+
+func EnvGetEnv(l *lua.State) int {
+	environment, err := GetEnvironment(l)
+	if err != nil {
+		l.PushString(err.Error())
+		l.Error()
+		return 0
+	}
+	DeepPush(l, environment.Env)
+	return 1
+}
+
+func EnvGetArgs(l *lua.State) int {
+	environment, err := GetEnvironment(l)
+	if err != nil {
+		l.PushString(err.Error())
+		l.Error()
+		return 0
+	}
+	DeepPush(l, environment.Args)
+	return 1
+}
